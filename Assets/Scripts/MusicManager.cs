@@ -8,26 +8,26 @@ using UnityEngine.Audio;
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
-    public AudioMixerGroup audioMxrGroup;
+    public AudioMixerGroup audioMixerGroup;
     public Queue<Sound> musicQueue = new Queue<Sound>();
-    public Sound songPlaying;
+    public Sound currentSong;
 
     public List<Sound> fullSongList;
-    public event Action<Sound> UpdatedSongPlaying;
+    public event Action<Sound> UpdatedCurrentSong;
 
     private Coroutine playSongCoroutine;
 
     private void Awake()
     {
         InitializeSingleton();
-        playSongCoroutine = StartCoroutine(PlaySongQueue());
+        playSongCoroutine = StartCoroutine(PlayMusicQueue());
     }
 
     public void ResetQueue()
     {
         StopCurrentCoroutine();
         TryStopAndClearQueue();
-        playSongCoroutine = StartCoroutine(PlaySongQueue());
+        playSongCoroutine = StartCoroutine(PlayMusicQueue());
     }
 
     public bool TryEnqueue(Sound songToAdd)
@@ -48,9 +48,9 @@ public class MusicManager : MonoBehaviour
 
     public void TryStopAndClearQueue()
     {
-        if (songPlaying != null && songPlaying.source != null)
+        if (currentSong != null && currentSong.source != null)
         {
-            songPlaying.source.Stop();
+            currentSong.source.Stop();
         }
         musicQueue.Clear();
     }
@@ -69,9 +69,9 @@ public class MusicManager : MonoBehaviour
 
         if (TryEnqueue(songToPlay))
         {
-            songPlaying = songToPlay;
-            songPlaying.source.Play();
-            UpdatedSongPlaying?.Invoke(songPlaying);
+            currentSong = songToPlay;
+            currentSong.source.Play();
+            UpdatedCurrentSong?.Invoke(currentSong);
         }
         else
         {
@@ -100,7 +100,7 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    private IEnumerator PlaySongQueue()
+    private IEnumerator PlayMusicQueue()
     {
         const float waitAmount = 0.25f;
 
@@ -108,15 +108,15 @@ public class MusicManager : MonoBehaviour
         {
             if (musicQueue.Count > 0)
             {
-                songPlaying = musicQueue.Peek();
-                if (!songPlaying.source.isPlaying)
+                currentSong = musicQueue.Peek();
+                if (!currentSong.source.isPlaying)
                 {
-                    songPlaying.source.Play();
-                    UpdatedSongPlaying?.Invoke(songPlaying);
+                    currentSong.source.Play();
+                    UpdatedCurrentSong?.Invoke(currentSong);
 
-                    yield return new WaitForSecondsRealtime(songPlaying.source.clip.length + waitAmount);
+                    yield return new WaitForSecondsRealtime(currentSong.source.clip.length + waitAmount);
                     if (!musicQueue.Peek().source.isPlaying)
-                        TryDequeue(songPlaying);
+                        TryDequeue(currentSong);
                     else Debug.LogError("Trying to normally Dequeue a song that is playing...");
                 }
             }
@@ -139,7 +139,7 @@ public class MusicManager : MonoBehaviour
         songToAdd.source = gameObject.AddComponent<AudioSource>();
         songToAdd.source.clip = songToAdd.clip;
         songToAdd.source.loop = songToAdd.loop;
-        songToAdd.source.outputAudioMixerGroup = audioMxrGroup;
+        songToAdd.source.outputAudioMixerGroup = audioMixerGroup;
         SetVolumeAndPitchWithVariance(songToAdd);
     }
 

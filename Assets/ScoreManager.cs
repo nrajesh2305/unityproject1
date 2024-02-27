@@ -1,76 +1,78 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    static public ScoreManager Instance;
+    public static ScoreManager Instance;
 
-    private int score;
-    private Text scoreText;
+    private int playerScore;
+    private Text scoreDisplay;
 
-    private int lightEnemyKillCount;
-    private int heavyEnemyKillCount;
-    private int superHeavyEnemyKillCount;
-    private int factoryKillCount;
+    private int enemy1KillCount;
+    private int enemy2KillCount;
+    private int enemy3KillCount;
+    private int buildingDestroyCount;
 
-    // Start is called before the first frame update
+    void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
-        score = 0;
-        scoreText.text = "Score: " + score;
+        playerScore = 0;
+        scoreDisplay.text = "Total Score: " + playerScore;
 
-        lightEnemyKillCount = 0;
-        heavyEnemyKillCount = 0;
-        superHeavyEnemyKillCount = 0;
-        factoryKillCount = 0;
+        enemy1KillCount = 0;
+        enemy2KillCount = 0;
+        enemy3KillCount = 0;
+        buildingDestroyCount = 0;
     }
 
-    public void KillLightEnemy() 
+    public void Enemy1Killed()
     {
-        lightEnemyKillCount++;
+        enemy1KillCount++;
     }
 
-    public void KillHeavyEnemy() 
+    public void Enemy2Killed()
     {
-        heavyEnemyKillCount++;
+        enemy2KillCount++;
     }
 
-    public void KillSuperHeavyEnemy() 
+    public void Enemy3Killed()
     {
-        superHeavyEnemyKillCount++;
+        enemy3KillCount++;
     }
 
-    public void KillFactory() {
-        factoryKillCount++;
-    }
-
-    public void CalculateScore() 
+    public void BuildingDestroyed()
     {
-        score = lightEnemyKillCount * 50 + heavyEnemyKillCount * 100 + superHeavyEnemyKillCount * 150;
+        buildingDestroyCount++;
     }
 
-    public int GetScore()
+    public void CalculateScore()
     {
-        return score;
+        playerScore = enemy1KillCount * 50 + enemy2KillCount * 100 + enemy3KillCount * 150;
     }
 
-    public UnityEngine.UI.Text GetScoreText()
+    public int GetTotalScore()
     {
-        return scoreText;
+        return playerScore;
     }
 
-    public int GetFactoryKillCount()
+    public Text GetScoreDisplay()
     {
-        return factoryKillCount;
+        return scoreDisplay;
     }
 
-    // Update is called once per frame
+    public int GetBuildingDestroyCount()
+    {
+        return buildingDestroyCount;
+    }
+
     void Update()
     {
         CalculateScore();
-        scoreText.text = "Score: " + score;
+        scoreDisplay.text = "Total Score: " + playerScore;
     }
 }

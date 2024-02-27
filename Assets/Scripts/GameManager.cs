@@ -23,14 +23,14 @@ public enum GameStateType
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public GameStateType CurrentStateType { get; private set; }
-    private IGameState _currentState;
-    private int _currentSceneNum = 0;
+    public GameStateType CurrentState { get; private set; }
+    private IGameState _currentStateHandler;
+    private int _currentSceneIndex = 0;
     private readonly int _totalNumberOfScenes = SceneManager.sceneCountInBuildSettings;
 
     public event Action<GameStateType> OnGameStateChange;
 
-    private readonly Dictionary<GameStateType, IGameState> _gameStates = new Dictionary<GameStateType, IGameState>();
+    private readonly Dictionary<GameStateType, IGameState> _gameStateHandlers = new Dictionary<GameStateType, IGameState>();
 
     private void Awake()
     {
@@ -48,43 +48,43 @@ public class GameManager : MonoBehaviour
 
     private void InitializeGameStates()
     {
-        _gameStates.Add(GameStateType.InMainMenu, new InMainMenuState());
-        _gameStates.Add(GameStateType.PreparingLevel, new InPreparingLevelState());
-        _gameStates.Add(GameStateType.PlayingLevel, new InPlayingLevelState());
-        _gameStates.Add(GameStateType.LevelPaused, new InLevelPausedState());
-        _gameStates.Add(GameStateType.PlayerDied, new InPlayerDiedState());
-        _gameStates.Add(GameStateType.LevelCompleted, new InLevelCompletedState());
-        _gameStates.Add(GameStateType.PlayingCredits, new InPlayingCreditsState());
+        _gameStateHandlers.Add(GameStateType.InMainMenu, new InMainMenuState());
+        _gameStateHandlers.Add(GameStateType.PreparingLevel, new InPreparingLevelState());
+        _gameStateHandlers.Add(GameStateType.PlayingLevel, new InPlayingLevelState());
+        _gameStateHandlers.Add(GameStateType.LevelPaused, new InLevelPausedState());
+        _gameStateHandlers.Add(GameStateType.PlayerDied, new InPlayerDiedState());
+        _gameStateHandlers.Add(GameStateType.LevelCompleted, new InLevelCompletedState());
+        _gameStateHandlers.Add(GameStateType.PlayingCredits, new InPlayingCreditsState());
     }
 
     public void UpdateGameState(GameStateType newState)
     {
-        if (CurrentStateType == newState) return;
+        if (CurrentState == newState) return;
 
-        _currentState?.OnExit(this);
+        _currentStateHandler?.OnExit(this);
         OnGameStateChange?.Invoke(newState);
 
-        CurrentStateType = newState;
-        _currentState = _gameStates[newState];
-        _currentState?.OnEnter(this);
+        CurrentState = newState;
+        _currentStateHandler = _gameStateHandlers[newState];
+        _currentStateHandler?.OnEnter(this);
     }
 
     public void ReloadScene() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
-    public void SwitchToScene(string sceneName, bool updateCurrentSceneNum = true)
+    public void SwitchToScene(string sceneName, bool updateCurrentSceneIndex = true)
     {
         SceneManager.LoadScene(sceneName);
-        if (updateCurrentSceneNum) UpdateCurrentSceneNum(sceneName);
+        if (updateCurrentSceneIndex) UpdateCurrentSceneIndex(sceneName);
     }
 
-    public void SwitchToScene(int sceneNum, bool updateCurrentSceneNum = true)
+    public void SwitchToScene(int sceneIndex, bool updateCurrentSceneIndex = true)
     {
-        SceneManager.LoadScene(sceneNum);
-        if (updateCurrentSceneNum) _currentSceneNum = sceneNum;
+        SceneManager.LoadScene(sceneIndex);
+        if (updateCurrentSceneIndex) _currentSceneIndex = sceneIndex;
     }
 
-    private void UpdateCurrentSceneNum(string sceneName)
+    private void UpdateCurrentSceneIndex(string sceneName)
     {
-        _currentSceneNum = SceneManager.GetSceneByName(sceneName).buildIndex;
+        _currentSceneIndex = SceneManager.GetSceneByName(sceneName).buildIndex;
     }
 }

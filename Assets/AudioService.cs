@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,10 +8,10 @@ public class AudioService : MonoBehaviour
 {
     public static AudioService Instance;
     public List<Sound> soundsList;
-    private AudioMixerGroup _audioMxrGroup;
+    private AudioMixerGroup _audioMixerGroup;
     private Dictionary<string, Sound> soundDictionary = new Dictionary<string, Sound>();
 
-    public AudioMixerGroup AudioMxrGroup { get; set; }
+    public AudioMixerGroup AudioMixerGroup { get; set; }
     private float currentPitch = 1.0f;
 
     public void Awake()
@@ -38,7 +37,7 @@ public class AudioService : MonoBehaviour
     {
         foreach (Sound sound in soundsList)
         {
-            sound.Initialize(gameObject, _audioMxrGroup);
+            sound.Initialize(gameObject, _audioMixerGroup);
             if (!soundDictionary.ContainsKey(sound.name))
                 soundDictionary.Add(sound.name, sound);
         }
